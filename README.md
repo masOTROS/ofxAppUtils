@@ -36,6 +36,8 @@ ofxAppUtils is a set of utilities for OpenFrameworks application development inc
 
 All ofBaseApp & ofxiOSApp callbacks are handled down to the scene level.
 
+This fork adds the option to overlap transitions. This means that while the old scene is finishing, the new scene is entering and it updates and draws in the foreground.
+
 Installation
 ------------
 

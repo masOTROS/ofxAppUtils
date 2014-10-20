@@ -56,6 +56,4 @@ class testApp : public ofxApp { // <-- inherits ofxApp instead of ofBaseApp
 		ofxSceneManager sceneManager;
 		int lastScene;
 		
-		// keep a pointer to the Particle Scene, so we can modify it more easily
-		ParticleScene *particleScene;
 };

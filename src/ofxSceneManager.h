@@ -89,6 +89,8 @@ class ofxSceneManager {
 		/// note: this is ignored it the change is done "now"
 		unsigned int getMinChangeTime();
 		void setMinChangeTime(unsigned int time);
+        void setOverlapingTransitions(bool overlap);
+        const bool getOverlapingTransitions();
 		
 	/// \section Current Scene Callbacks
 		
@@ -160,9 +162,11 @@ class ofxSceneManager {
 	
 		ofxScene*	_currentScenePtr; ///< pointer to the current scene
 		ofxScene::RunnerScene* _currentRunnerScenePtr; ///< pointer to the current runner scene
+    	ofxScene::RunnerScene* _newRunnerScenePtr; ///< pointer to the next runner scene
 		int _currentScene; ///< the current scene, < 0 if none
 		int _newScene;     ///< scene to change to
 		bool _bChangeNow;  ///< ignore enter and exit when changing scenes?
+        bool _bOverlapTransitions;   //< make new scenes start entering while current scene is finishing?
 		
 		std::map<std::string, ofxScene::RunnerScene*> _scenes; ///< scenes
 	

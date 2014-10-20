@@ -235,7 +235,7 @@ void ofxApp::RunnerApp::update() {
 		
 		// save quad warper?
 		if(controlPanel.getValueB("transformSaveQuadWarper")) {
-			app->saveWarpSettings();
+			//app->saveWarpSettings();
 			controlPanel.setValueB("transformSaveQuadWarper", false);
 		}
 	}

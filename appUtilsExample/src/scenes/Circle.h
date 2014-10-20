@@ -12,24 +12,27 @@
 
 #include <ofxAppUtils.h>
 
-class LineScene : public ofxScene {
+class Circle : public ofxScene {
 
 	public:
 
 		// set the scene name through the base class initializer
-		LineScene() : ofxScene("Lines"){
+		Circle() : ofxScene("Circle"){
 			alpha = 255;
 			
 			// we want setup to be called each time the scene is loaded
 			setSingleSetup(false);
+            
+            ofxApp *app = ofxGetAppPtr();
+            width = app->getRenderWidth();
+            height = app->getRenderHeight();
 		}
 
 		// scene setup
 		void setup() {
 			timer.set();
+			pos.set(0,height/2);
 			
-			lines.push_back(new Line(Line::HORZ));
-			lines.push_back(new Line(Line::VERT));
 		}
 
 		// called when scene is entering
@@ -53,14 +56,15 @@ class LineScene : public ofxScene {
 				finishedEntering();
 				alpha = 255;
 				ofLogNotice("LineScene") << "update enter done";
+                timer2.set();
 			}
 		}
 
 		// normal update
 		void update() {
-			for(unsigned int i = 0; i < lines.size(); ++i) {
-				lines[i]->update();
-			}
+            if(!isEntering() && !isExiting()){
+                pos.set((sin((float)timer2.getDiff()/1000-PI/2)+1)/2*width, height/2);
+            }
 		}
 
 		// called when scene is exiting
@@ -89,77 +93,23 @@ class LineScene : public ofxScene {
 		// draw
 		void draw() {
 			ofEnableAlphaBlending();
-			ofSetLineWidth(5);
-			ofSetColor(255, 255, 255, alpha);	// alpha for fade in/out
-			for(unsigned int i = 0; i < lines.size(); ++i) {
-				lines[i]->draw();
-			}
-			ofSetLineWidth(1);
+			ofSetColor(255, 0, 0, alpha);	// alpha for fade in/out
+			ofCircle(pos,40);
 			ofDisableAlphaBlending();
 		}
 		
 		// cleanup
 		void exit() {
-			for(unsigned int i = 0; i < lines.size(); ++i) {
-				Line* l = lines[i];
-				delete l;
-			}
-			lines.clear();
+			
 		}
 		
 		// used for fade in and out
 		ofxTimer timer;
+    	ofxTimer timer2;
 		int alpha;
-
-		// line class		
-		class Line {
-
-			public:
-			
-				Line(int type) {
-					this->type = (Type) type;
-				}
-				
-				void update() {
-				
-					// get a pointer to the parent app for data access,
-					// here used to get the size of the render area
-					// you can also cast the ofxApp reference to your own derived
-					// class to pass custom data:
-					//
-					// TestApp* testApp = (TestApp*) (ofxGetAppPtr());
-					//
-					// NOTE: you must use "ofxGetAppPtr()" <-- note the "x",
-					// this is a replacement for "ofGetAppPtr()" which does not
-					// return the pointer to the correct app instance
-					//
-					ofxApp *app = ofxGetAppPtr();
-					
-					switch(type) {
-						case HORZ:
-							pos1.set(0, ofNoise(ofGetElapsedTimef())*app->getRenderHeight());
-							pos2.set(app->getRenderWidth(), ofNoise(ofGetElapsedTimef())*app->getRenderHeight());
-							break;
-						case VERT:
-							pos1.set(ofNoise(ofGetElapsedTimef())*app->getRenderHeight(), 0);
-							pos2.set(ofNoise(ofGetElapsedTimef())*app->getRenderHeight(), app->getRenderHeight());
-							break;
-					}
-				}
-				
-				void draw() {
-					ofLine(pos1, pos2);
-				}
-				
-				enum Type {
-					HORZ,
-					VERT
-				};
-				int type;
-				
-				ofVec2f pos1, pos2;				
-		};
+        ofPoint pos;
+    
+        float width;
+        float height;
 		
-		// lines
-		vector<Line*> lines;
 };

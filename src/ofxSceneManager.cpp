@@ -15,7 +15,7 @@
 //--------------------------------------------------------------
 ofxSceneManager::ofxSceneManager() :
 	_currentScene(SCENE_NONE), _newScene(SCENE_NOCHANGE),
-	_bChangeNow(false), _minChangeTimeMS(100), _bSignalledAutoChange(false)
+	_bChangeNow(false), _minChangeTimeMS(100), _bSignalledAutoChange(false), _bOverlapTransitions(false)
 {
 	_sceneChangeTimer.set();
 	_currentScenePtr = NULL;
@@ -167,11 +167,15 @@ void ofxSceneManager::gotoScene(unsigned int index, bool now) {
 		// tell new scene to enter
 		s = getSceneAt(index);
 		s->startEntering();
+//--------------------- <CAMBIOS MASOTROS> ---------------------//
+        _newRunnerScenePtr = _getRunnerSceneAt(index);
+//--------------------- </CAMBIOS MASOTROS> ---------------------//
 	}
 	
 	_newScene = index;
 	_bChangeNow = now;
-	ofLogVerbose("ofxSceneManager") << "GOTO SCENE: " << _newScene;
+    
+    ofLogVerbose("ofxSceneManager") << "GOTO SCENE: " << _newScene;
 }
 
 //--------------------------------------------------------------
@@ -229,6 +233,14 @@ void ofxSceneManager::setMinChangeTime(unsigned int time) {
 	_minChangeTimeMS = time;
 }
 
+void ofxSceneManager::setOverlapingTransitions(bool overlap){
+    _bOverlapTransitions = overlap;
+}
+
+const bool ofxSceneManager::getOverlapingTransitions(){
+    return _bOverlapTransitions;
+}
+
 // ofBaseApp
 //--------------------------------------------------------------
 // need to call ofxScene::RunnerScene::update()
@@ -238,9 +250,8 @@ void ofxSceneManager::update() {
 
 	// update the current main scene
 	if(!_scenes.empty() && _currentScene >= 0) {
-	
-		ofxScene* s = _currentScenePtr;
-
+        ofxScene* s = _currentScenePtr;
+        
 		// call setup if scene is not setup yet
 		if(!s->isSetup()) {
 			_currentRunnerScenePtr->setup();
@@ -254,6 +265,20 @@ void ofxSceneManager::update() {
 			_bSignalledAutoChange = true;
 		}
 	}
+    
+    
+//--------------------- <CAMBIOS MASOTROS> ---------------------//
+    // update the new scene, if there is one
+    if(_bOverlapTransitions && !_scenes.empty() && _newScene != SCENE_NOCHANGE && _newScene >= 0){
+        ofxScene* next_s = getSceneAt(_newScene);
+        
+        if(!next_s->isSetup()) {
+            _newRunnerScenePtr->setup();
+		}
+        
+		_newRunnerScenePtr->update();
+    }
+//--------------------- </CAMBIOS MASOTROS> ---------------------//    
 }
 
 // need to call ofxScene::RunnerScene::draw()
@@ -261,6 +286,13 @@ void ofxSceneManager::draw() {
 	if(!_scenes.empty() && _currentScene >= 0) {
 		_currentRunnerScenePtr->draw();
 	}
+    
+    //--------------------- <CAMBIOS MASOTROS> ---------------------//
+    if(_bOverlapTransitions && !_scenes.empty() && _newScene != SCENE_NOCHANGE && _newScene >= 0){
+        _newRunnerScenePtr->draw();
+    }
+    //--------------------- </CAMBIOS MASOTROS> ---------------------//
+    
 }
 
 void ofxSceneManager::keyPressed(int key) {
@@ -461,6 +493,7 @@ void ofxSceneManager::changeToNewScene() {
 	
 	_currentScene = _newScene;
 	_currentRunnerScenePtr = _getRunnerSceneAt(_currentScene);
+    _newRunnerScenePtr = NULL;
 	
 	if(_currentRunnerScenePtr) {
 		_currentScenePtr = _currentRunnerScenePtr->scene;

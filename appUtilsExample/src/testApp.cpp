@@ -20,7 +20,7 @@ void testApp::setup() {
 	ofBackground(0, 0, 0);
 
 	// setup the render size (working area)
-	setRenderSize(600, 400);
+	setRenderSize(800, 600);
 
 	// turn on transform origin translation and scaling to screen size,
 	// disable quad warping, and enable aspect ratio and centering when scaling
@@ -44,17 +44,17 @@ void testApp::setup() {
 	// load saved quad warper settings
 	// loads and saves to "quadWarper.xml" in the data folder
 	// or use your own filename
-	loadWarpSettings();
+	//loadWarpSettings();
 	
 	// load scenes
-	particleScene = (ParticleScene*) sceneManager.add(new ParticleScene()); // save pointer
-	sceneManager.add(new LineScene());
+    sceneManager.add(new Circle());
+    sceneManager.add(new Square());
 	sceneManager.setup(true); // true = setup all the scenes now (not on the fly)
 	ofSetLogLevel("ofxSceneManager", OF_LOG_VERBOSE); // lets see whats going on inside
 	
 	// start with a specific scene
 	// set now to true in order to ignore the scene fade and change now
-	sceneManager.gotoScene("Lines", true);
+	sceneManager.gotoScene("Circle", true);
 	lastScene = sceneManager.getCurrentSceneIndex();
 	
 	// attach scene manager to this ofxApp so it's called automatically,
@@ -68,6 +68,7 @@ void testApp::setup() {
 	// the input callbacks in your scenes will be called if they are implemented
 	//
 	setSceneManager(&sceneManager);
+    sceneManager.setOverlapingTransitions(true);
 }
 
 //--------------------------------------------------------------
@@ -116,7 +117,7 @@ void testApp::draw() {
 void testApp::keyPressed(int key) {
 	
 	switch (key) {
-	
+	/*
 		case 'd':
 			bDebug = !bDebug;
 			break;
@@ -144,7 +145,7 @@ void testApp::keyPressed(int key) {
 		case 'f':
 			ofToggleFullscreen();
 			break;
-	
+	*/
 		case OF_KEY_LEFT:
 			sceneManager.prevScene();
 			break;
@@ -164,17 +165,9 @@ void testApp::keyPressed(int key) {
 			sceneManager.gotoScene(lastScene);
 			break;
 			
-		case '-':
-			if(sceneManager.getCurrentScene() == particleScene) {
-				particleScene->removeOneParticle();
-			}
-			break;
-			
-		case '=':
-			if(sceneManager.getCurrentScene() == particleScene) {
-				particleScene->addOneParticle();
-			}
-			break;	
+        case 'o':
+            sceneManager.setOverlapingTransitions(!sceneManager.getOverlapingTransitions());
+            break;
 	}
 }
 
